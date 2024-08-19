@@ -1,0 +1,30 @@
+{% extends  'atm/base.html' %}
+{% block title %} Accounts {% endblock %}
+{% block content %}
+    <h1>Accounts</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Client</th>
+            <th>Balance</th>
+            <th>Card id</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for account in accounts %}
+            <tr>
+                <td>{{ account.id }}</td>
+                <td>{{ account.client.username }}</td>
+                <td>{{ account.balance }}</td>
+                <td>{{ account.card_id }}</td>
+                <td>
+                    <a href="{% url 'atm:edit_account' account.id %}">Edit</a>
+                    <a href="{% url 'atm:delete_account' account.id %}">Delete</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
