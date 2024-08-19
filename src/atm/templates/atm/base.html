@@ -1,0 +1,18 @@
+{% extends  'gentelella/base.html' %}
+{% load static %}
+{% block title  %} ATM {% endblock %}
+
+{% block extra_css  %}{% endblock %}
+
+{% block content_block_wrap %}
+<div class="card">
+    <div class="card-body">
+        {% block content %}
+
+        {% endblock content %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript  %}{{ block.super }}{% endblock %}
+
