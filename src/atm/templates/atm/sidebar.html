@@ -1,0 +1,56 @@
+{% load gentelellamenu gtsettings %}
+<div class="left_col overflow-hidden">
+    <div class="navbar nav_title" style="border: 0;">
+        <a href="{% url 'home' %}" class="site_title"><i class="{% get_settings 'sidebar_icon' 'fa fa-spinner' %}"></i>
+            <span>{% get_settings 'sidebar_title' 'ATM' %}</span></a>
+    </div>
+
+
+    <div class="clearfix"></div>
+
+    <br>
+    <!-- sidebar menu -->
+    {% sidebar_menu %}
+    <div id="sidebar-menu" class="main_menu_side d-print-none main_menu">
+        <div class="menu_section">
+            <ul class="nav side-menu">
+                <li>
+                    <a>
+                        Accounts
+                        <span class="fa fa-chevron-down"></span>
+                    </a>
+                    <ul class="nav child_menu">
+                        <li>
+                            <a href="{% url 'atm:create_account' %}">
+                                Create Account
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'atm:account_list' %}">
+                                Account List
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a class="nav-link" href="{% url 'atm:withdraw' %}">
+                        Withdraw money
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" href="{% url 'atm:transaction_logs' %}">
+                        Transaction logs
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+    <!-- /sidebar menu -->
+
+    <!-- /menu footer buttons -->
+    <div class="sidebar-footer d-print-none nohidden">
+        {% footer_sidebar_menu %}
+    </div>
+    <!-- /menu footer buttons -->
+</div>

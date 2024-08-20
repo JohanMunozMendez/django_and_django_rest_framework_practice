@@ -1,14 +1,14 @@
 {% extends  'atm/base.html' %}
 {% block title %} Accounts {% endblock %}
 {% block content %}
-    <h1>Accounts</h1>
-    <table>
+    <h3 class="heading-1"><span>Accounts </span></h3>
+    <table class="table table-striped">
         <thead>
         <tr>
             <th>Id</th>
             <th>Client</th>
             <th>Balance</th>
-            <th>Card id</th>
+            <th>Card PIN</th>
             <th>Actions</th>
         </tr>
         </thead>
@@ -18,10 +18,10 @@
                 <td>{{ account.id }}</td>
                 <td>{{ account.client.username }}</td>
                 <td>{{ account.balance }}</td>
-                <td>{{ account.card_id }}</td>
+                <td>{{ account.card_pin }}</td>
                 <td>
-                    <a href="{% url 'atm:edit_account' account.id %}">Edit</a>
-                    <a href="{% url 'atm:delete_account' account.id %}">Delete</a>
+                    <a href="{% url 'atm:edit_account' account.id %}"><i class="icons fa fa-edit"></i></a>
+                    <a href="{% url 'atm:delete_account' account.id %}"><i class="icons fa fa-trash text-danger"></i></a>
                 </td>
             </tr>
         {% endfor %}

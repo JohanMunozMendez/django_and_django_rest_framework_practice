@@ -1,10 +1,12 @@
 from decimal import Decimal
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 
 from .forms import AccountForm, WithdrawForm
-from .models import Account
+from .models import Account, TransactionLog
+
 
 denominations = [10000, 5000, 2000]
 denominations.sort(reverse=True)
@@ -21,7 +23,7 @@ def create_account(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Account created successfully')
-            return redirect('atm:accounts')
+            return redirect('atm:account_list')
     else:
         form = AccountForm()
     return render(request, 'atm/create_account.html', {'form': form})
@@ -34,7 +36,7 @@ def edit_account(request, account_id):
         if form.is_valid():
             form.save()
             messages.success(request, 'Account updated successfully')
-            return redirect('atm:accounts')
+            return redirect('atm:account_list')
     else:
         form = AccountForm(instance=account)
         return render(request, 'atm/edit_account.html', {'account': account, 'form': form})
@@ -43,7 +45,7 @@ def delete_account(request, account_id):
     account = get_object_or_404(Account, pk=account_id)
     account.delete()
     messages.success(request, 'Account deleted successfully')
-    return redirect('atm:accounts')
+    return redirect('atm:account_list')
 
 def is_dispensable(amount):
     if amount == 0:
@@ -69,7 +71,8 @@ def cash_dispense(amount):
 def show_withdrawal_info():
     info = 'Su dinero es '
     for amount, denomination in dispensed:
-        info += f'{amount} billetes de {denomination} '
+        if amount > 0:
+            info += f'{amount} billete(s) de ${denomination}, '
     return info
 
 def withdraw(request):
@@ -77,13 +80,14 @@ def withdraw(request):
     if request.method == 'POST':
         amount = Decimal(request.POST.get('amount'))
         card_pin = request.POST.get('card_pin')
-        account = Account.objects.get(card_pin=card_pin)
+        account =  get_object_or_404(Account, card_pin=card_pin)
 
         if account.balance >= amount:
             if is_dispensable(amount):
                 cash_dispense(amount)
                 account.balance -= amount
                 account.save()
+                create_transaction_log(account, amount, 'withdrawal')
                 messages.success(request, f'Withdrawal successful {show_withdrawal_info()}')
                 return redirect('atm:withdraw')
 
@@ -96,3 +100,11 @@ def withdraw(request):
     else:
         return render(request, 'atm/withdraw.html', {'form': form})
 
+def create_transaction_log(account, amount, transaction_type):
+    account.transactionlog_set.create(amount=amount, transaction_type=transaction_type)
+    account.save()
+
+@login_required
+def transaction_logs(request):
+    transaction_logs = TransactionLog.objects.all()
+    return render(request, 'atm/transaction_logs.html', {'transaction_logs': transaction_logs})

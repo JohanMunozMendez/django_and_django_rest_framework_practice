@@ -4,10 +4,17 @@
 
 {% block extra_css  %}{% endblock %}
 
-{% block content_block_wrap %}
-        {% block content %}
+{% block sidebar %}
+<div class="col-md-3 left_col {% block sidebar_class %} {% endblock sidebar_class %}">
+    {% include "atm/sidebar.html" %}
+</div>
+{% endblock sidebar %}
 
-        {% endblock content %}
+
+{% block content_block_wrap %}
+{% block content %}
+
+{% endblock content %}
 {% endblock %}
 
 {% block javascript  %}{{ block.super }}{% endblock %}
