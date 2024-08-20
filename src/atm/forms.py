@@ -2,7 +2,19 @@ from django import forms
 from djgentelella.widgets import core as genwidgets
 from djgentelella.forms.forms import GTForm
 
-from .models import Account
+from .models import Account, Client
+
+
+class ClientForm(GTForm, forms.ModelForm):
+
+    class Meta:
+        model = Client
+        fields = '__all__'
+        widgets = {
+            "name": genwidgets.TextInput(),
+            "email": genwidgets.EmailInput(),
+            "phone": genwidgets.TextInput(),
+        }
 
 class AccountForm(GTForm, forms.ModelForm):
 
