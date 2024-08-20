@@ -4,18 +4,50 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 
-from .forms import AccountForm, WithdrawForm
-from .models import Account, TransactionLog
-
+from .forms import AccountForm, WithdrawForm, ClientForm
+from .models import Account, TransactionLog, Client
 
 denominations = [10000, 5000, 2000]
 denominations.sort(reverse=True)
 dispensed = []
 
-# Create your views here.
-def accounts(request):
+def client_list(request):
+    clients = Client.objects.all()
+    return render(request, 'atm/clients/client_list.html', {'clients': clients})
+
+def create_client(request):
+    if request.method == 'POST':
+        form = ClientForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Client created successfully')
+            return redirect('atm:client_list')
+    else:
+        form = ClientForm()
+        return render(request, 'atm/clients/create_client.html', {'form': form})
+
+def edit_client(request, client_id):
+    client = get_object_or_404(Client, pk=client_id)
+
+    if request.method == 'POST':
+        form = ClientForm(request.POST, instance=client)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Cliente updated successfully')
+            return redirect('atm:client_list')
+    else:
+        form = ClientForm(instance=client)
+        return render(request, 'atm/clients/edit_client.html', {'client': client, 'form': form})
+
+def delete_client(request, client_id):
+    client = get_object_or_404(Client, pk=client_id)
+    client.delete()
+    messages.success(request, 'Client deleted successfully')
+    return redirect('atm:client_list')
+
+def account_list(request):
     accounts = Account.objects.all()
-    return render(request, 'atm/accounts.html', {'accounts': accounts})
+    return render(request, 'atm/accounts/account_list.html', {'accounts': accounts})
 
 def create_account(request):
     if request.method == 'POST':
@@ -26,7 +58,7 @@ def create_account(request):
             return redirect('atm:account_list')
     else:
         form = AccountForm()
-    return render(request, 'atm/create_account.html', {'form': form})
+    return render(request, 'atm/accounts/create_account.html', {'form': form})
 
 def edit_account(request, account_id):
     account = get_object_or_404(Account, pk=account_id)
@@ -39,7 +71,7 @@ def edit_account(request, account_id):
             return redirect('atm:account_list')
     else:
         form = AccountForm(instance=account)
-        return render(request, 'atm/edit_account.html', {'account': account, 'form': form})
+        return render(request, 'atm/accounts/edit_account.html', {'account': account, 'form': form})
 
 def delete_account(request, account_id):
     account = get_object_or_404(Account, pk=account_id)
@@ -72,7 +104,7 @@ def show_withdrawal_info():
     info = 'Su dinero es '
     for amount, denomination in dispensed:
         if amount > 0:
-            info += f'{amount} billete(s) de ${denomination}, '
+            info += f'{amount} billetes de {denomination}, '
     return info
 
 def withdraw(request):

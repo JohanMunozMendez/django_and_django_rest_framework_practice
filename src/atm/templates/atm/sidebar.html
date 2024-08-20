@@ -14,6 +14,26 @@
     <div id="sidebar-menu" class="main_menu_side d-print-none main_menu">
         <div class="menu_section">
             <ul class="nav side-menu">
+
+                <li>
+                    <a>
+                        Clients
+                        <span class="fa fa-chevron-down"></span>
+                    </a>
+                    <ul class="nav child_menu">
+                        <li>
+                            <a href="{% url 'atm:create_client' %}">
+                                Create Client
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'atm:client_list' %}">
+                                Client List
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
                 <li>
                     <a>
                         Accounts
