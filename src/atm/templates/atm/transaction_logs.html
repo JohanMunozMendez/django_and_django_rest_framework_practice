@@ -1,0 +1,25 @@
+{% extends  'atm/base.html' %}
+{% block title %} Transaction Logs {% endblock %}
+{% block content %}
+  <h3 class="heading-1"><span>Transaction Logs</span></h3>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Account</th>
+        <th>Amount</th>
+        <th>Transaction type</th>
+        <th>Transaction date</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for transaction_log in transaction_logs %}
+    <tr>
+        <td>{{ transaction_log.account }}</td>
+        <td>{{ transaction_log.amount }}</td>
+        <td>{{ transaction_log.transaction_type }}</td>
+        <td>{{ transaction_log.transaction_date }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
