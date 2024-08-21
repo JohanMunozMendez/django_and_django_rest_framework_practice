@@ -1,35 +1,30 @@
 from decimal import Decimal
 
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.models import User, Permission
 from django.shortcuts import render, get_object_or_404, redirect
 
-from .forms import AccountForm, WithdrawForm, ClientForm, LoginForm
+from .forms import AccountForm, WithdrawForm, ClientForm, LoginForm, OfficeUserForm
 from .models import Account, TransactionLog, Client
 
 denominations = [10000, 5000, 2000]
 denominations.sort(reverse=True)
 dispensed = []
 
-def signin(request):
+def create_office_user(request):
     if request.method == 'POST':
-        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
-        if user is not None:
-            login(request, user)
-            return redirect('atm:account_list')
-        else:
-            messages.error(request, 'Username and password did not match')
-            form = LoginForm().as_grid()
-            return render(request, 'atm/login.html', {'form': form})
+        form = OfficeUserForm(request.POST)
+        if form.is_valid():
+            user = User.objects.create_user(username=form.cleaned_data['username'], password=form.cleaned_data['password1'])
+            permission = Permission.objects.get(codename='can_manage_clients')
+            user.user_permissions.add(permission)
+            user.save()
+            messages.success(request, 'Office user created successfully')
+            return redirect('login')
     else:
-        form = LoginForm().as_grid()
-        return render(request, 'atm/login.html', {'form': form})
-
-
-def signout(request):
-    logout(request)
-    return redirect('atm:withdraw')
+        form = OfficeUserForm()
+        return render(request, 'atm/create_office_user.html', {'form': form})
 
 @permission_required('atm.can_manage_clients')
 def client_list(request):

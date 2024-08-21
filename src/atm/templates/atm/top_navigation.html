@@ -15,7 +15,10 @@
                     {% top_menu %}
                     {% if not user.is_authenticated %}
                     <li>
-                        <a class="nav-link" href="{% url 'atm:login' %}">Login</a>
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="{% url 'atm:create_office_user' %}">Signup</a>
                     </li>
                     {% endif %}
                 </ul>

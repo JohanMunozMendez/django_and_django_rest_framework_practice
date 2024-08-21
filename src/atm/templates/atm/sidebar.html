@@ -60,20 +60,13 @@
                     </a>
                 </li>
                 {% endif %}
-
+                {% if not perms.atm.can_manage_clients %}
                 <li>
-                    <a>
-                        ATM
-                        <span class="fa fa-chevron-down"></span>
+                    <a href="{% url 'atm:withdraw' %}">
+                        Withdraw money
                     </a>
-                    <ul class="nav child_menu">
-                        <li>
-                            <a href="{% url 'atm:withdraw' %}">
-                                Withdraw money
-                            </a>
-                        </li>
-                    </ul>
                 </li>
+                {% endif %}
 
             </ul>
         </div>
@@ -83,12 +76,13 @@
 
     <!-- /menu footer buttons -->
     <div class="sidebar-footer d-print-none nohidden">
-        {% footer_sidebar_menu %}
-
         {% if user.is_authenticated %}
-        <a title="Salir" href="{% url 'atm:logout' %}">
-            <span class="fa fa-power-off" aria-hidden="true"></span>
-        </a>
+        {% footer_sidebar_menu %}
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-dark" type="submit"><span class="fa fa-power-off" aria-hidden="true"></span></button>
+            {{ user.username }}
+        </form>
         {% endif %}
     </div>
     <!-- /menu footer buttons -->

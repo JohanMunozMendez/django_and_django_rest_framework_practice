@@ -125,5 +125,5 @@ STATIC_URL = os.getenv('STATIC_URL', '/static/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_URL = '/atm/login'
-LOGIN_REDIRECT_URL = '/atm/account_list'
+LOGIN_REDIRECT_URL = '/atm/accounts'
+LOGOUT_REDIRECT_URL = '/atm/withdraw'
