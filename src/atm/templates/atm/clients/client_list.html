@@ -9,6 +9,7 @@
             <th>Name</th>
             <th>Email</th>
             <th>Phone</th>
+            <th>DNI</th>
             <th>Actions</th>
         </tr>
         </thead>
@@ -19,6 +20,7 @@
                 <td>{{ client.name }}</td>
                 <td>{{ client.email }}</td>
                 <td>{{ client.phone }}</td>
+                <td>{{ client.dni }}</td>
                 <td>
                     <a href="{% url 'atm:edit_client' client.id %}"><i class="icons fa fa-edit"></i></a>
                     <a href="{% url 'atm:delete_client' client.id %}"><i class="icons fa fa-trash text-danger"></i></a>

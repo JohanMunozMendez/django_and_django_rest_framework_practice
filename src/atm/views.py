@@ -3,28 +3,48 @@ from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Permission
+from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404, redirect
 
-from .forms import AccountForm, WithdrawForm, ClientForm, LoginForm, OfficeUserForm
+from .forms import AccountForm, WithdrawForm, ClientForm, OfficeUserForm
 from .models import Account, TransactionLog, Client
 
 denominations = [10000, 5000, 2000]
 denominations.sort(reverse=True)
 dispensed = []
 
+def office_user_list(request):
+    pass
+    # office_users = User.objects.filter(user_permissions__codename='can_manage_clients')
+    # return render(request, 'atm/office_users/office_user_list.html', {'office_users': office_users})
 def create_office_user(request):
     if request.method == 'POST':
         form = OfficeUserForm(request.POST)
         if form.is_valid():
-            user = User.objects.create_user(username=form.cleaned_data['username'], password=form.cleaned_data['password1'])
-            permission = Permission.objects.get(codename='can_manage_clients')
-            user.user_permissions.add(permission)
-            user.save()
-            messages.success(request, 'Office user created successfully')
-            return redirect('login')
+            username = form.cleaned_data['username']
+            password1 = form.cleaned_data['password1']
+            password2 = form.cleaned_data['password2']
+            if password1 == password2:
+                try:
+                    user = User.objects.create_user(username=username, password=password1)
+                    permission = Permission.objects.get(codename='can_manage_clients')
+                    user.user_permissions.add(permission)
+                    user.save()
+                    return redirect('login')
+                except IntegrityError:
+                    messages.error(request, 'Username already taken')
+                    return render(request, 'atm/create_office_user.html', {'form': OfficeUserForm()})
+            else:
+                messages.error(request, 'Passwords do not match')
+                return render(request, 'atm/create_office_user.html', {'form': OfficeUserForm()})
+        else:
+            messages.error(request, form.errors)
+            return render(request, 'atm/create_office_user.html', {'form': OfficeUserForm()})
     else:
-        form = OfficeUserForm()
-        return render(request, 'atm/create_office_user.html', {'form': form})
+        return render(request, 'atm/create_office_user.html', {'form': OfficeUserForm()})
+
+def edit_office_user(request, office_user_id):
+    pass
 
 @permission_required('atm.can_manage_clients')
 def client_list(request):
@@ -39,9 +59,11 @@ def create_client(request):
             form.save()
             messages.success(request, 'Client created successfully')
             return redirect('atm:client_list')
+        else:
+            messages.error(request, form.errors)
+            return render(request, 'atm/clients/create_client.html', {'form': ClientForm()})
     else:
-        form = ClientForm()
-        return render(request, 'atm/clients/create_client.html', {'form': form})
+        return render(request, 'atm/clients/create_client.html', {'form': ClientForm()})
 
 @permission_required('atm.can_manage_clients')
 def edit_client(request, client_id):
@@ -53,9 +75,11 @@ def edit_client(request, client_id):
             form.save()
             messages.success(request, 'Cliente updated successfully')
             return redirect('atm:client_list')
+        else:
+            messages.error(request, form.errors)
+            return render(request, 'atm/clients/edit_client.html', {'client': client, 'form': ClientForm(instance=client)})
     else:
-        form = ClientForm(instance=client)
-        return render(request, 'atm/clients/edit_client.html', {'client': client, 'form': form})
+        return render(request, 'atm/clients/edit_client.html', {'client': client, 'form': ClientForm(instance=client)})
 
 @permission_required('atm.can_manage_clients')
 def delete_client(request, client_id):
@@ -77,9 +101,11 @@ def create_account(request):
             form.save()
             messages.success(request, 'Account created successfully')
             return redirect('atm:account_list')
+        else:
+            messages.error(request, form.errors)
+            return render(request, 'atm/accounts/create_account.html', {'form': AccountForm()})
     else:
-        form = AccountForm()
-    return render(request, 'atm/accounts/create_account.html', {'form': form})
+        return render(request, 'atm/accounts/create_account.html', {'form':  AccountForm()})
 
 @permission_required('atm.can_manage_clients')
 def edit_account(request, account_id):
@@ -91,9 +117,12 @@ def edit_account(request, account_id):
             form.save()
             messages.success(request, 'Account updated successfully')
             return redirect('atm:account_list')
+        else:
+            messages.error(request, form.errors)
+            return render(request, 'atm/accounts/edit_account.html',
+                          {'account': account, 'form': AccountForm(instance=account)})
     else:
-        form = AccountForm(instance=account)
-        return render(request, 'atm/accounts/edit_account.html', {'account': account, 'form': form})
+        return render(request, 'atm/accounts/edit_account.html', {'account': account, 'form': AccountForm(instance=account)})
 
 @permission_required('atm.can_manage_clients')
 def delete_account(request, account_id):

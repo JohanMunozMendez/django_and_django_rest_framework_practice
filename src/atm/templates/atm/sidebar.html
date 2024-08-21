@@ -18,6 +18,25 @@
                 {% if user.is_authenticated and perms.atm.can_manage_clients %}
                 <li>
                     <a>
+                        Office users
+                        <span class="fa fa-chevron-down"></span>
+                    </a>
+                    <ul class="nav child_menu">
+                        <li>
+                            <a href="{% url 'atm:create_office_user' %}">
+                                Create Office User
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'atm:office_user_list' %}">
+                                Office User List
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a>
                         Clients
                         <span class="fa fa-chevron-down"></span>
                     </a>

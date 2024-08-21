@@ -14,6 +14,7 @@ class ClientForm(GTForm, forms.ModelForm):
             "name": genwidgets.TextInput(),
             "email": genwidgets.EmailInput(),
             "phone": genwidgets.TextInput(),
+            "dni": genwidgets.TextInput(),
         }
 
 class AccountForm(GTForm, forms.ModelForm):
