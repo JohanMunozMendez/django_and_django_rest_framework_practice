@@ -1,0 +1,25 @@
+<nav class="navbar navbar-expand-lg nav_menu">
+    {% load i18n gentelellamenu gtsettings urlname_tags %}
+    <div class="container-fluid">
+        <div class="nav toggle ">
+            <a id="menu_toggle" style="cursor:pointer;"><i class="fa fa-bars"></i></a>
+        </div>
+        <div class="container-fluid">
+            <a class=" float-end menu-top-navbar" style="margin-top:-25px;" role="button" data-bs-toggle="collapse"
+               href="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
+               aria-label="Toggle navigation">
+                <i class="fa fa-th-large nav-icon-size"></i>
+            </a>
+            <div class="collapse navbar-collapse float-end" id="navbarNavDropdown">
+                <ul id="items-top-navbar" class="nav navbar-nav d-flex flex-row-reverse">
+                    {% top_menu %}
+                    {% if not user.is_authenticated %}
+                    <li>
+                        <a class="nav-link" href="{% url 'atm:login' %}">Login</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>

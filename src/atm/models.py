@@ -1,6 +1,15 @@
 from django.contrib.auth.models import User
 from django.db import models
 
+class OfficeUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        permissions = [('can_manage_clients', 'Can manage clients')]
+
 class Client(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()

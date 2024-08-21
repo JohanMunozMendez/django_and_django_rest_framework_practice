@@ -1,20 +1,42 @@
 from decimal import Decimal
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 
-from .forms import AccountForm, WithdrawForm, ClientForm
+from .forms import AccountForm, WithdrawForm, ClientForm, LoginForm
 from .models import Account, TransactionLog, Client
 
 denominations = [10000, 5000, 2000]
 denominations.sort(reverse=True)
 dispensed = []
 
+def signin(request):
+    if request.method == 'POST':
+        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
+        if user is not None:
+            login(request, user)
+            return redirect('atm:account_list')
+        else:
+            messages.error(request, 'Username and password did not match')
+            form = LoginForm().as_grid()
+            return render(request, 'atm/login.html', {'form': form})
+    else:
+        form = LoginForm().as_grid()
+        return render(request, 'atm/login.html', {'form': form})
+
+
+def signout(request):
+    logout(request)
+    return redirect('atm:withdraw')
+
+@permission_required('atm.can_manage_clients')
 def client_list(request):
     clients = Client.objects.all()
     return render(request, 'atm/clients/client_list.html', {'clients': clients})
 
+@permission_required('atm.can_manage_clients')
 def create_client(request):
     if request.method == 'POST':
         form = ClientForm(request.POST)
@@ -26,6 +48,7 @@ def create_client(request):
         form = ClientForm()
         return render(request, 'atm/clients/create_client.html', {'form': form})
 
+@permission_required('atm.can_manage_clients')
 def edit_client(request, client_id):
     client = get_object_or_404(Client, pk=client_id)
 
@@ -39,16 +62,19 @@ def edit_client(request, client_id):
         form = ClientForm(instance=client)
         return render(request, 'atm/clients/edit_client.html', {'client': client, 'form': form})
 
+@permission_required('atm.can_manage_clients')
 def delete_client(request, client_id):
     client = get_object_or_404(Client, pk=client_id)
     client.delete()
     messages.success(request, 'Client deleted successfully')
     return redirect('atm:client_list')
 
+@permission_required('atm.can_manage_clients')
 def account_list(request):
     accounts = Account.objects.all()
     return render(request, 'atm/accounts/account_list.html', {'accounts': accounts})
 
+@permission_required('atm.can_manage_clients')
 def create_account(request):
     if request.method == 'POST':
         form = AccountForm(request.POST)
@@ -60,6 +86,7 @@ def create_account(request):
         form = AccountForm()
     return render(request, 'atm/accounts/create_account.html', {'form': form})
 
+@permission_required('atm.can_manage_clients')
 def edit_account(request, account_id):
     account = get_object_or_404(Account, pk=account_id)
 
@@ -73,6 +100,7 @@ def edit_account(request, account_id):
         form = AccountForm(instance=account)
         return render(request, 'atm/accounts/edit_account.html', {'account': account, 'form': form})
 
+@permission_required('atm.can_manage_clients')
 def delete_account(request, account_id):
     account = get_object_or_404(Account, pk=account_id)
     account.delete()
@@ -110,8 +138,8 @@ def show_withdrawal_info():
 def withdraw(request):
     form = WithdrawForm().as_grid()
     if request.method == 'POST':
-        amount = Decimal(request.POST.get('amount'))
-        card_pin = request.POST.get('card_pin')
+        amount = Decimal(request.POST['amount'])
+        card_pin = request.POST['card_pin']
         account =  get_object_or_404(Account, card_pin=card_pin)
 
         if account.balance >= amount:

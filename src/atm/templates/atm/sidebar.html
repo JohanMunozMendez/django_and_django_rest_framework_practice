@@ -15,6 +15,7 @@
         <div class="menu_section">
             <ul class="nav side-menu">
 
+                {% if user.is_authenticated and perms.atm.can_manage_clients %}
                 <li>
                     <a>
                         Clients
@@ -52,16 +53,28 @@
                         </li>
                     </ul>
                 </li>
-                <li>
-                    <a class="nav-link" href="{% url 'atm:withdraw' %}">
-                        Withdraw money
-                    </a>
-                </li>
+
                 <li>
                     <a class="nav-link" href="{% url 'atm:transaction_logs' %}">
                         Transaction logs
                     </a>
                 </li>
+                {% endif %}
+
+                <li>
+                    <a>
+                        ATM
+                        <span class="fa fa-chevron-down"></span>
+                    </a>
+                    <ul class="nav child_menu">
+                        <li>
+                            <a href="{% url 'atm:withdraw' %}">
+                                Withdraw money
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
             </ul>
         </div>
 
@@ -71,6 +84,12 @@
     <!-- /menu footer buttons -->
     <div class="sidebar-footer d-print-none nohidden">
         {% footer_sidebar_menu %}
+
+        {% if user.is_authenticated %}
+        <a title="Salir" href="{% url 'atm:logout' %}">
+            <span class="fa fa-power-off" aria-hidden="true"></span>
+        </a>
+        {% endif %}
     </div>
     <!-- /menu footer buttons -->
 </div>

@@ -1,9 +1,12 @@
 from django.urls import path
 
+from django.contrib.auth import views as auth_views
 from . import views
 
 app_name = 'atm'
 urlpatterns = [
+    path('login', views.signin, name='login'),
+    path('logout', views.signout, name='logout'),
     path('clients', views.client_list, name='client_list'),
     path('create/client', views.create_client, name='create_client'),
     path('<int:client_id>', views.edit_client, name='edit_client'),

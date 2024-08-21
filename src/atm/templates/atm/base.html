@@ -4,6 +4,12 @@
 
 {% block extra_css  %}{% endblock %}
 
+{% block top_navigation %}
+<div class="top_nav ">
+    {% include "atm/top_navigation.html" %}
+</div>
+{% endblock top_navigation %}
+
 {% block sidebar %}
 <div class="col-md-3 left_col {% block sidebar_class %} {% endblock sidebar_class %}">
     {% include "atm/sidebar.html" %}
