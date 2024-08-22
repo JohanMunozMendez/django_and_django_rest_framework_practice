@@ -1,11 +1,10 @@
 {% extends  'atm/base.html' %}
-{% block title %} Create client {% endblock %}
+{% block title %} Create office user {% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-md-4">
-        <form action="{% url 'atm:create_client' %}" method="post" class="card card-body">
-            <h3 class="card-title heading-1"><span>Create client</span></h3>
-
+        <form action="{% url 'atm:create_office_user' %}" method="post" class="card card-body">
+            <h3 class="card-title heading-1"><span>Create office user</span></h3>
             {% csrf_token %}
 
             {{ form.as_p }}

@@ -1,18 +1,9 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
 from djgentelella.widgets import core as genwidgets
 from djgentelella.forms.forms import GTForm
 
 from .models import Account, Client, OfficeUser
-
-
-class OfficeUserForm(GTForm, forms.ModelForm):
-
-    class Meta:
-        model = OfficeUser
-        fields = '__all__'
-        widgets = {
-            "user": genwidgets.Select(),
-        }
 
 class ClientForm(GTForm, forms.ModelForm):
 
@@ -23,6 +14,7 @@ class ClientForm(GTForm, forms.ModelForm):
             "name": genwidgets.TextInput(),
             "email": genwidgets.EmailInput(),
             "phone": genwidgets.TextInput(),
+            "dni": genwidgets.TextInput(),
         }
 
 class AccountForm(GTForm, forms.ModelForm):
@@ -35,6 +27,7 @@ class AccountForm(GTForm, forms.ModelForm):
             "balance": genwidgets.NumberInput(),
             "card_pin": genwidgets.NumberInput(),
         }
+
 class WithdrawForm(GTForm):
     amount = forms.DecimalField(max_digits=12, decimal_places=2, required=True, label='Amount to withdraw', widget=genwidgets.NumberInput())
     card_pin = forms.IntegerField(required=True, label='Card PIN', widget=genwidgets.NumberInput())
@@ -42,3 +35,12 @@ class WithdrawForm(GTForm):
 class LoginForm(GTForm):
     username = forms.CharField(required=True, label='Username', widget=genwidgets.TextInput())
     password = forms.CharField(required=True, label='Password', widget=genwidgets.PasswordInput())
+
+class OfficeUserForm(GTForm):
+    username = forms.CharField(required=True, label='Username', widget=genwidgets.TextInput())
+    password1 = forms.CharField(required=True, label='Password', widget=genwidgets.PasswordInput())
+    password2 = forms.CharField(required=True, label='Confirm Password', widget=genwidgets.PasswordInput())
+
+    class Meta:
+        model = OfficeUser
+        fields = []

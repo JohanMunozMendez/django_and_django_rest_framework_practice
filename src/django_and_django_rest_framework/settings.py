@@ -125,5 +125,30 @@ STATIC_URL = os.getenv('STATIC_URL', '/static/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_URL = '/atm/login'
-LOGIN_REDIRECT_URL = '/atm/account_list'
+LOGIN_REDIRECT_URL = '/atm/accounts'
+LOGOUT_REDIRECT_URL = '/atm/withdraw'
+
+# Logging Module
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {
+            "format": "{levelname} - {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        }
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "propagate": True,
+        },
+    },
+}
