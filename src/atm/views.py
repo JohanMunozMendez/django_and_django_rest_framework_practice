@@ -6,6 +6,9 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Permission
 from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.views import generic
+from djgentelella.decorators.perms import all_permission_required
 
 from .forms import AccountForm, WithdrawForm, ClientForm, OfficeUserForm
 from .models import Account, TransactionLog, Client, OfficeUser
@@ -15,10 +18,11 @@ denominations.sort(reverse=True)
 dispensed = []
 logger = logging.getLogger("django")
 
+@permission_required('atm.view_officeuser')
 def office_user_list(request):
     office_users = OfficeUser.objects.all()
     return render(request, 'atm/office_users/office_user_list.html', {'office_users': office_users})
-
+@all_permission_required(['atm.add_officeuser', 'atm.view_officeuser'])
 def create_office_user(request):
     if request.method == 'POST':
         form = OfficeUserForm(request.POST)
@@ -40,7 +44,7 @@ def create_office_user(request):
                     return render(request, 'atm/office_users/create_office_user.html', {'form': OfficeUserForm()})
             else:
                 messages.error(request, 'Passwords do not match')
-                logger.info('Passwords do not match')
+                logger.error('Passwords do not match')
                 return render(request, 'atm/office_users/create_office_user.html', {'form': OfficeUserForm()})
         else:
             messages.error(request, form.errors)
@@ -49,104 +53,59 @@ def create_office_user(request):
         return render(request, 'atm/office_users/create_office_user.html', {'form': OfficeUserForm()})
 
 def edit_office_user(request, office_user_id):
-    office_user = get_object_or_404(OfficeUser, pk=office_user_id)
+    pass
 
-    if request.method == 'POST':
-        form = OfficeUserForm(request.POST, instance=office_user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Office user updated successfully')
-            return redirect('atm:office_user_list')
-        else:
-            messages.error(request, form.errors)
-            return render(request, 'atm/office_users/edit_office_user.html', {'office_user': office_user, 'form': OfficeUserForm(instance=office_user)})
-    else:
-        return render(request, 'atm/office_users/edit_office_user.html', {'office_user': office_user, 'form': OfficeUserForm(instance=office_user)})
+# @permission_required('atm.can_manage_clients')
+class ClientListView(generic.ListView):
+    model = Client
+    template_name = 'atm/clients/client_list.html'
+    queryset = Client.objects.all()
+    context_object_name = 'clients'
 
-@permission_required('atm.can_manage_clients')
-def client_list(request):
-    clients = Client.objects.all()
-    return render(request, 'atm/clients/client_list.html', {'clients': clients})
+# @permission_required('atm.can_manage_clients')
+class CreateClientView(generic.CreateView):
+    form_class = ClientForm
+    template_name = 'atm/clients/create_client.html'
+    success_url = reverse_lazy('atm:client_list')
 
-@permission_required('atm.can_manage_clients')
-def create_client(request):
-    if request.method == 'POST':
-        form = ClientForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Client created successfully')
-            return redirect('atm:client_list')
-        else:
-            messages.error(request, form.errors)
-            return render(request, 'atm/clients/create_client.html', {'form': ClientForm()})
-    else:
-        return render(request, 'atm/clients/create_client.html', {'form': ClientForm()})
+# @permission_required('atm.can_manage_clients')
+class EditClientView(generic.UpdateView):
+    model = Client
+    form_class = ClientForm
+    template_name = 'atm/clients/edit_client.html'
+    success_url = reverse_lazy('atm:client_list')
 
-@permission_required('atm.can_manage_clients')
-def edit_client(request, client_id):
-    client = get_object_or_404(Client, pk=client_id)
+# @permission_required('atm.can_manage_clients')
+class DeleteClientView(generic.DeleteView):
+    model = Client
+    template_name = 'atm/clients/confirm_delete.html'
+    success_url = reverse_lazy('atm:client_list')
 
-    if request.method == 'POST':
-        form = ClientForm(request.POST, instance=client)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Cliente updated successfully')
-            return redirect('atm:client_list')
-        else:
-            messages.error(request, form.errors)
-            return render(request, 'atm/clients/edit_client.html', {'client': client, 'form': ClientForm(instance=client)})
-    else:
-        return render(request, 'atm/clients/edit_client.html', {'client': client, 'form': ClientForm(instance=client)})
+# @permission_required('atm.can_manage_clients')
+class AccountListView(generic.ListView):
+    model = Account
+    template_name = 'atm/accounts/account_list.html'
+    queryset = Account.objects.all()
+    context_object_name = 'accounts'
 
-@permission_required('atm.can_manage_clients')
-def delete_client(request, client_id):
-    client = get_object_or_404(Client, pk=client_id)
-    client.delete()
-    messages.success(request, 'Client deleted successfully')
-    return redirect('atm:client_list')
+# @permission_required('atm.can_manage_clients')
+class CreateAccountView(generic.CreateView):
+    form_class = AccountForm
+    template_name = 'atm/accounts/create_account.html'
+    success_url = reverse_lazy('atm:account_list')
 
-@permission_required('atm.can_manage_clients')
-def account_list(request):
-    accounts = Account.objects.all()
-    return render(request, 'atm/accounts/account_list.html', {'accounts': accounts})
+# @permission_required('atm.can_manage_clients')
+class EditAccountView(generic.UpdateView):
+    model = Account
+    form_class = AccountForm
+    template_name = 'atm/accounts/edit_account.html'
+    success_url = reverse_lazy('atm:account_list')
 
-@permission_required('atm.can_manage_clients')
-def create_account(request):
-    if request.method == 'POST':
-        form = AccountForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Account created successfully')
-            return redirect('atm:account_list')
-        else:
-            messages.error(request, form.errors)
-            return render(request, 'atm/accounts/create_account.html', {'form': AccountForm()})
-    else:
-        return render(request, 'atm/accounts/create_account.html', {'form':  AccountForm()})
-
-@permission_required('atm.can_manage_clients')
-def edit_account(request, account_id):
-    account = get_object_or_404(Account, pk=account_id)
-
-    if request.method == 'POST':
-        form = AccountForm(request.POST, instance=account)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Account updated successfully')
-            return redirect('atm:account_list')
-        else:
-            messages.error(request, form.errors)
-            return render(request, 'atm/accounts/edit_account.html',
-                          {'account': account, 'form': AccountForm(instance=account)})
-    else:
-        return render(request, 'atm/accounts/edit_account.html', {'account': account, 'form': AccountForm(instance=account)})
-
-@permission_required('atm.can_manage_clients')
-def delete_account(request, account_id):
-    account = get_object_or_404(Account, pk=account_id)
-    account.delete()
-    messages.success(request, 'Account deleted successfully')
-    return redirect('atm:account_list')
+# @permission_required('atm.can_manage_clients')
+class DeleteAccountView(generic.DeleteView):
+    model = Account
+    template_name = 'atm/accounts/confirm_delete.html'
+    success_url = reverse_lazy('atm:account_list')
 
 def is_dispensable(amount):
     if amount == 0:

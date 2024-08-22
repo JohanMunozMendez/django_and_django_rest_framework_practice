@@ -14,7 +14,9 @@
             <tr>
                 <td>{{ office_user.user.username }}</td>
                 <td>
+                    {% if perms.atm.change_officeuser %}
                     <a href=""><i class="icons fa fa-edit"></i></a>
+                    {% endif %}
                     <a href=""><i class="icons fa fa-trash text-danger"></i></a>
                 </td>
             </tr>
