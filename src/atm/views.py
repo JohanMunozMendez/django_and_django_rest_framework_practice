@@ -1,3 +1,4 @@
+import logging
 from decimal import Decimal
 
 from django.contrib import messages
@@ -7,16 +8,17 @@ from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404, redirect
 
 from .forms import AccountForm, WithdrawForm, ClientForm, OfficeUserForm
-from .models import Account, TransactionLog, Client
+from .models import Account, TransactionLog, Client, OfficeUser
 
 denominations = [10000, 5000, 2000]
 denominations.sort(reverse=True)
 dispensed = []
+logger = logging.getLogger("django")
 
 def office_user_list(request):
-    pass
-    # office_users = User.objects.filter(user_permissions__codename='can_manage_clients')
-    # return render(request, 'atm/office_users/office_user_list.html', {'office_users': office_users})
+    office_users = OfficeUser.objects.all()
+    return render(request, 'atm/office_users/office_user_list.html', {'office_users': office_users})
+
 def create_office_user(request):
     if request.method == 'POST':
         form = OfficeUserForm(request.POST)
@@ -30,21 +32,36 @@ def create_office_user(request):
                     permission = Permission.objects.get(codename='can_manage_clients')
                     user.user_permissions.add(permission)
                     user.save()
-                    return redirect('login')
+                    OfficeUser.objects.create(user=user)
+                    messages.success(request, 'Office user created successfully')
+                    return redirect('atm:create_office_user')
                 except IntegrityError:
                     messages.error(request, 'Username already taken')
-                    return render(request, 'atm/create_office_user.html', {'form': OfficeUserForm()})
+                    return render(request, 'atm/office_users/create_office_user.html', {'form': OfficeUserForm()})
             else:
                 messages.error(request, 'Passwords do not match')
-                return render(request, 'atm/create_office_user.html', {'form': OfficeUserForm()})
+                logger.info('Passwords do not match')
+                return render(request, 'atm/office_users/create_office_user.html', {'form': OfficeUserForm()})
         else:
             messages.error(request, form.errors)
-            return render(request, 'atm/create_office_user.html', {'form': OfficeUserForm()})
+            return render(request, 'atm/office_users/create_office_user.html', {'form': OfficeUserForm()})
     else:
-        return render(request, 'atm/create_office_user.html', {'form': OfficeUserForm()})
+        return render(request, 'atm/office_users/create_office_user.html', {'form': OfficeUserForm()})
 
 def edit_office_user(request, office_user_id):
-    pass
+    office_user = get_object_or_404(OfficeUser, pk=office_user_id)
+
+    if request.method == 'POST':
+        form = OfficeUserForm(request.POST, instance=office_user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Office user updated successfully')
+            return redirect('atm:office_user_list')
+        else:
+            messages.error(request, form.errors)
+            return render(request, 'atm/office_users/edit_office_user.html', {'office_user': office_user, 'form': OfficeUserForm(instance=office_user)})
+    else:
+        return render(request, 'atm/office_users/edit_office_user.html', {'office_user': office_user, 'form': OfficeUserForm(instance=office_user)})
 
 @permission_required('atm.can_manage_clients')
 def client_list(request):
