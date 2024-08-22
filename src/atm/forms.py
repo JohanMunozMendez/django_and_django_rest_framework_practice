@@ -40,3 +40,7 @@ class OfficeUserForm(GTForm):
     username = forms.CharField(required=True, label='Username', widget=genwidgets.TextInput())
     password1 = forms.CharField(required=True, label='Password', widget=genwidgets.PasswordInput())
     password2 = forms.CharField(required=True, label='Confirm Password', widget=genwidgets.PasswordInput())
+
+    class Meta:
+        model = OfficeUser
+        fields = []

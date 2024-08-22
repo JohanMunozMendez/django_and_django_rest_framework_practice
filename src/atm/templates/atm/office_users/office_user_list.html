@@ -1,0 +1,24 @@
+{% extends  'atm/base.html' %}
+{% block title %} Office users {% endblock %}
+{% block content %}
+    <h3 class="heading-1"><span>Office users</span></h3>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Username</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for office_user in office_users %}
+            <tr>
+                <td>{{ office_user.user.username }}</td>
+                <td>
+                    <a href=""><i class="icons fa fa-edit"></i></a>
+                    <a href=""><i class="icons fa fa-trash text-danger"></i></a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -6,7 +6,7 @@ class OfficeUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return self.user.username
 
     class Meta:
         permissions = [('can_manage_clients', 'Can manage clients')]
