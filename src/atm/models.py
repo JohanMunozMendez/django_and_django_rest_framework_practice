@@ -20,6 +20,7 @@ class Client(models.Model):
     def __str__(self):
         return f'{self.name} - {self.dni}'
 
+
 class Account(models.Model):
     client = models.ForeignKey(Client, on_delete=models.DO_NOTHING)
     balance = models.DecimalField(max_digits=12, decimal_places=2)

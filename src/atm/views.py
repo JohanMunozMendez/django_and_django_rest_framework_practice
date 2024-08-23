@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User, Permission
 from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404, redirect
@@ -55,57 +56,57 @@ def create_office_user(request):
 def edit_office_user(request, office_user_id):
     pass
 
-# @permission_required('atm.can_manage_clients')
-class ClientListView(generic.ListView):
+class ClientListView(PermissionRequiredMixin, generic.ListView):
     model = Client
     template_name = 'atm/clients/client_list.html'
     queryset = Client.objects.all()
     context_object_name = 'clients'
+    permission_required = 'atm.can_manage_clients'
 
-# @permission_required('atm.can_manage_clients')
-class CreateClientView(generic.CreateView):
+class CreateClientView(PermissionRequiredMixin, generic.CreateView):
     form_class = ClientForm
     template_name = 'atm/clients/create_client.html'
     success_url = reverse_lazy('atm:client_list')
+    permission_required = 'atm.can_manage_clients'
 
-# @permission_required('atm.can_manage_clients')
-class EditClientView(generic.UpdateView):
+class EditClientView(PermissionRequiredMixin, generic.UpdateView):
     model = Client
     form_class = ClientForm
     template_name = 'atm/clients/edit_client.html'
     success_url = reverse_lazy('atm:client_list')
+    permission_required = 'atm.can_manage_clients'
 
-# @permission_required('atm.can_manage_clients')
-class DeleteClientView(generic.DeleteView):
+class DeleteClientView(PermissionRequiredMixin, generic.DeleteView):
     model = Client
     template_name = 'atm/clients/confirm_delete.html'
     success_url = reverse_lazy('atm:client_list')
+    permission_required = 'atm.can_manage_clients'
 
-# @permission_required('atm.can_manage_clients')
-class AccountListView(generic.ListView):
+class AccountListView(PermissionRequiredMixin, generic.ListView):
     model = Account
     template_name = 'atm/accounts/account_list.html'
     queryset = Account.objects.all()
     context_object_name = 'accounts'
+    permission_required = 'atm.can_manage_clients'
 
-# @permission_required('atm.can_manage_clients')
-class CreateAccountView(generic.CreateView):
+class CreateAccountView(PermissionRequiredMixin, generic.CreateView):
     form_class = AccountForm
     template_name = 'atm/accounts/create_account.html'
     success_url = reverse_lazy('atm:account_list')
+    permission_required = 'atm.can_manage_clients'
 
-# @permission_required('atm.can_manage_clients')
-class EditAccountView(generic.UpdateView):
+class EditAccountView(PermissionRequiredMixin, generic.UpdateView):
     model = Account
     form_class = AccountForm
     template_name = 'atm/accounts/edit_account.html'
     success_url = reverse_lazy('atm:account_list')
+    permission_required = 'atm.can_manage_clients'
 
-# @permission_required('atm.can_manage_clients')
-class DeleteAccountView(generic.DeleteView):
+class DeleteAccountView(PermissionRequiredMixin, generic.DeleteView):
     model = Account
     template_name = 'atm/accounts/confirm_delete.html'
     success_url = reverse_lazy('atm:account_list')
+    permission_required = 'atm.can_manage_clients'
 
 def is_dispensable(amount):
     if amount == 0:
@@ -129,10 +130,10 @@ def cash_dispense(amount):
         cash_dispensed = 0
 
 def show_withdrawal_info():
-    info = 'Su dinero es '
+    info = 'Your money is: '
     for amount, denomination in dispensed:
         if amount > 0:
-            info += f'{amount} billetes de {denomination}, '
+            info += f'{amount} bills of {denomination}, '
     return info
 
 def withdraw(request):
