@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
 from djgentelella.widgets import core as genwidgets
 from djgentelella.forms.forms import GTForm
 
