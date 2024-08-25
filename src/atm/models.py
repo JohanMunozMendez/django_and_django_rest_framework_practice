@@ -4,12 +4,13 @@ from django.db import models
 
 class OfficeUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    is_admin = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.username
 
     class Meta:
-        permissions = [('can_manage_clients', 'Can manage clients')]
+        permissions = [('can_manage_clients', 'Can manage clients'), ('can_manage_office_users', 'Can manage office users')]
 
 class Client(models.Model):
     name = models.CharField(max_length=100)

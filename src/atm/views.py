@@ -29,24 +29,20 @@ def create_office_user(request):
     if request.method == 'POST':
         form = OfficeUserForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
-            password1 = form.cleaned_data['password1']
-            password2 = form.cleaned_data['password2']
-            if password1 == password2:
-                try:
-                    user = User.objects.create_user(username=username, password=password1)
-                    permission = Permission.objects.get(codename='can_manage_clients')
-                    user.user_permissions.add(permission)
-                    user.save()
-                    OfficeUser.objects.create(user=user)
-                    messages.success(request, 'Office user created successfully')
-                    return redirect('atm:create_office_user')
-                except IntegrityError:
-                    messages.error(request, 'Username already taken')
-                    return render(request, 'atm/office_users/create_office_user.html', {'form': OfficeUserForm()})
-            else:
-                messages.error(request, 'Passwords do not match')
-                return render(request, 'atm/office_users/create_office_user.html', {'form': OfficeUserForm()})
+            # username = form.cleaned_data['username']
+            # password1 = form.cleaned_data['password1']
+            # password2 = form.cleaned_data['password2']
+            # if password1 == password2:
+                user = User.objects.create_user(username=username, password=password1)
+                permission = Permission.objects.get(codename='can_manage_clients')
+                user.user_permissions.add(permission)
+                user.save()
+                OfficeUser.objects.create(user=user)
+                messages.success(request, 'Office user created successfully')
+                return redirect('atm:create_office_user')
+            # else:
+            #     messages.error(request, 'Passwords do not match')
+            #     return render(request, 'atm/office_users/create_office_user.html', {'form': OfficeUserForm()})
         else:
             messages.error(request, form.errors)
             return render(request, 'atm/office_users/create_office_user.html', {'form': OfficeUserForm()})
