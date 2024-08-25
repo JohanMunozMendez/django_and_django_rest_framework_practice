@@ -16,7 +16,8 @@ from .models import Account, TransactionLog, Client, OfficeUser
 
 denominations = [10000, 5000, 2000]
 denominations.sort(reverse=True)
-dispensed = []
+cash_dispensed = []
+
 logger = logging.getLogger("django")
 
 @permission_required('atm.view_officeuser')
@@ -45,7 +46,6 @@ def create_office_user(request):
                     return render(request, 'atm/office_users/create_office_user.html', {'form': OfficeUserForm()})
             else:
                 messages.error(request, 'Passwords do not match')
-                logger.error('Passwords do not match')
                 return render(request, 'atm/office_users/create_office_user.html', {'form': OfficeUserForm()})
         else:
             messages.error(request, form.errors)
@@ -108,32 +108,26 @@ class DeleteAccountView(PermissionRequiredMixin, generic.DeleteView):
     success_url = reverse_lazy('atm:account_list')
     permission_required = 'atm.can_manage_clients'
 
-def is_dispensable(amount):
+def dispense_cash(amount):
+    global cash_dispensed
     if amount == 0:
         return True
     for denomination in denominations:
-        if amount >= denomination and is_dispensable(amount - denomination):
+        if amount >= denomination and dispense_cash(amount - denomination):
+            if len(cash_dispensed) == 0 or cash_dispensed[-1][1] != denomination:
+                cash_dispensed.append([1, denomination])
+            else:
+                cash_dispensed[-1][0] += 1
             return True
     return False
 
-def cash_dispense(amount):
-    global dispensed
-    dispensed = []
-    cash_dispensed = 0
-
-    for denomination in denominations:
-        while amount >= denomination:
-            amount -= Decimal(denomination)
-            cash_dispensed += 1
-
-        dispensed.append((cash_dispensed, denomination))
-        cash_dispensed = 0
-
-def show_withdrawal_info():
+def display_withdrawal_info():
+    global cash_dispensed
     info = 'Your money is: '
-    for amount, denomination in dispensed:
+    for amount, denomination in cash_dispensed:
         if amount > 0:
             info += f'{amount} bills of {denomination}, '
+    cash_dispensed = []
     return info
 
 def withdraw(request):
@@ -141,21 +135,21 @@ def withdraw(request):
     if request.method == 'POST':
         amount = Decimal(request.POST['amount'])
         card_pin = request.POST['card_pin']
-        account =  get_object_or_404(Account, card_pin=card_pin)
+        account = get_object_or_404(Account, card_pin=card_pin)
 
         if account.balance >= amount:
-            if is_dispensable(amount):
-                cash_dispense(amount)
+            if dispense_cash(amount):
                 account.balance -= amount
                 account.save()
                 create_transaction_log(account, amount, 'withdrawal')
-                messages.success(request, f'Withdrawal successful {show_withdrawal_info()}')
+                messages.success(request, f'Withdrawal successful {display_withdrawal_info()}')
                 return redirect('atm:withdraw')
-
             else:
+                logger.error(f'Amount not dispensable: {amount} - {denominations}')
                 messages.error(request, 'Amount not dispensable')
                 return redirect('atm:withdraw')
         else:
+            logger.error(f'Insufficient funds: {account.balance} - {amount}')
             messages.error(request, 'Insufficient funds')
             return redirect('atm:withdraw')
     else:
