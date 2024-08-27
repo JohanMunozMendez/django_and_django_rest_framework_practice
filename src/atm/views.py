@@ -54,7 +54,6 @@ def edit_office_user(request, office_user_id):
 class ClientListView(PermissionRequiredMixin, generic.ListView):
     model = Client
     template_name = 'atm/clients/client_list.html'
-    queryset = Client.objects.all()
     context_object_name = 'clients'
     permission_required = 'atm.can_manage_clients'
 
@@ -80,7 +79,6 @@ class DeleteClientView(PermissionRequiredMixin, generic.DeleteView):
 class AccountListView(PermissionRequiredMixin, generic.ListView):
     model = Account
     template_name = 'atm/accounts/account_list.html'
-    queryset = Account.objects.all()
     context_object_name = 'accounts'
     permission_required = 'atm.can_manage_clients'
 
