@@ -36,9 +36,9 @@ class LoginForm(GTForm):
     password = forms.CharField(required=True, label='Password', widget=genwidgets.PasswordInput())
 
 class OfficeUserForm(GTForm):
-    username = forms.CharField(required=True, label='Username', widget=genwidgets.TextInput())
-    password1 = forms.CharField(required=True, label='Password', widget=genwidgets.PasswordInput())
-    password2 = forms.CharField(required=True, label='Confirm Password', widget=genwidgets.PasswordInput())
+    first_name = forms.CharField(required=True, label='First Name', widget=genwidgets.TextInput())
+    last_name = forms.CharField(required=True, label='Last Name', widget=genwidgets.TextInput())
+    is_admin = forms.BooleanField(required=False, label='Is Admin', widget=genwidgets.CheckboxInput())
 
     class Meta:
         model = OfficeUser
