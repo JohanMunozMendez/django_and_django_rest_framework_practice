@@ -5,7 +5,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User, Permission
-from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views import generic
@@ -29,10 +28,10 @@ def create_office_user(request):
     if request.method == 'POST':
         form = OfficeUserForm(request.POST)
         if form.is_valid():
-            # username = form.cleaned_data['username']
-            # password1 = form.cleaned_data['password1']
-            # password2 = form.cleaned_data['password2']
-            # if password1 == password2:
+            username = form.cleaned_data['username']
+            password1 = form.cleaned_data['password1']
+            password2 = form.cleaned_data['password2']
+            if password1 == password2:
                 user = User.objects.create_user(username=username, password=password1)
                 permission = Permission.objects.get(codename='can_manage_clients')
                 user.user_permissions.add(permission)
@@ -40,9 +39,9 @@ def create_office_user(request):
                 OfficeUser.objects.create(user=user)
                 messages.success(request, 'Office user created successfully')
                 return redirect('atm:create_office_user')
-            # else:
-            #     messages.error(request, 'Passwords do not match')
-            #     return render(request, 'atm/office_users/create_office_user.html', {'form': OfficeUserForm()})
+            else:
+                messages.error(request, 'Passwords do not match')
+                return render(request, 'atm/office_users/create_office_user.html', {'form': OfficeUserForm()})
         else:
             messages.error(request, form.errors)
             return render(request, 'atm/office_users/create_office_user.html', {'form': OfficeUserForm()})
