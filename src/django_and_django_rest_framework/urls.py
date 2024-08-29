@@ -22,5 +22,9 @@ from djgentelella.urls import urlpatterns as urls_djgentelella
 urlpatterns = urls_djgentelella + [
     path('admin/', admin.site.urls),
     path('', RedirectView.as_view(url=reverse_lazy('home')), name='home'),
-    path('atm/', include('atm.urls')),
+    path('atm/', include(('atm.urls', 'atm'), namespace='atm')),
+
+    path('api-auth/', include('rest_framework.urls')),
+    path('holidays/', include(('holidays.urls', 'holidays'), namespace='holidays')),
+
 ]

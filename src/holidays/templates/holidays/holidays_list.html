@@ -1,0 +1,36 @@
+{% extends  'atm/base.html' %}
+{% block title %} Libros {% endblock %}
+{% load static gtsettings %}
+{% block pre_head %}
+{% define_true "use_datatables" %}
+{% endblock %}
+{% block content %}
+<table id="table_holidays"></table>
+{% endblock %}
+{% block js %}
+{{block.super}}
+
+<script>
+
+    document.list_holidays = "{% url 'holidays:apiview_holidays' %}";
+
+    createDataTable('#table_holidays', document.list_holidays, {
+        columns: [
+            {data: "name", name: "name", title: "Name", type: "string", visible: true},
+            {data: "date", name: "date", title: "Date", type: "date", dateformat: document.dateformat, visible: true},
+            {data: "day_of_week", name: "day_of_week", title: "Day of week", type: "string", visible: true},
+            {data: "countryCode", name: "countryCode", title: "Country code", type: "string", visible: true},
+        ],
+        ajax: {
+            url: document.list_holidays,
+            type: 'GET',
+            data: function (datatablesParams, settings) {
+                var data = formatDataTableParams(datatablesParams, settings);
+                return data;
+            }
+        },
+        addfilters: true,
+    });
+
+</script>
+{% endblock %}
