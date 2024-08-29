@@ -1,3 +1,4 @@
 Django==5.0
 djgentelella==0.3.21
 djangorestframework==3.14.0
+requests==2.32.3
